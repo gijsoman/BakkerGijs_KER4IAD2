@@ -1,4 +1,5 @@
 <?php
+//this is our update file as well as our registration form. 
 session_start();
 require_once 'connect.php';
 
@@ -11,6 +12,7 @@ if(isset($_SESSION['userSession']))
 $uname = "";
 $email = "";
 
+//if we come from the form we go do all of this
 if(strtoupper($_SERVER['REQUEST_METHOD']) == 'POST')
 {
 
@@ -24,7 +26,7 @@ if(strtoupper($_SERVER['REQUEST_METHOD']) == 'POST')
  		$hashed_Password_DB = $DBcon->query("SELECT password FROM users WHERE user_id=" . $_SESSION['userSession'] . ";");
  		$row=$hashed_Password_DB->fetch_array();
  	}
-
+ 	//if the password not is the standard value we can set our variables else we just send our hashed password back again.
  	if($_POST['password'] != "00000")
  	{
  		$upass = strip_tags($_POST['password']);
@@ -44,10 +46,11 @@ if(strtoupper($_SERVER['REQUEST_METHOD']) == 'POST')
 	$uname = $DBcon->real_escape_string($uname);
  	$email = $DBcon->real_escape_string($email);
  	
-
+ 	//we check if the email already exists. first look in the database if the email exists
 	$check_email = $DBcon->query("SELECT email FROM users WHERE email='$email'");
  	$count=$check_email->num_rows;
 
+ 	//if we have a usersession we can update else we have to insert.
  	if(isset($_SESSION['userSession']))
  	{
  		$query = "UPDATE users SET username='$uname', email='$email', password='$hashed_password' WHERE user_id = " . $_SESSION['userSession'] . ";";

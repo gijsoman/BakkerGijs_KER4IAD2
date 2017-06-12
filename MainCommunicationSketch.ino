@@ -14,11 +14,15 @@ int inputWeight;
 bool someoneOn = false;
 
 void setup() {
+  //We only setup if the serial monitor is open.
+  //We first set the pinmodes and then start the bridge.
   Serial.begin(9600);
   while (!Serial);
-  
+
   Serial.println("Starting Bridge...");
   pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(11, OUTPUT);
   digitalWrite(13, LOW);
   Bridge.begin();
   digitalWrite(13, HIGH);
@@ -87,14 +91,16 @@ void loop() {
     char c = client.read();
     average += c; 
   }
-
+  //check the average and give feedback.
   if(inputWeight < average.toInt() && someoneOn)
   {
     Serial.println("GROEN");
+    digitalWrite(12, HIGH);
   }
   else if(someoneOn)
   {
     Serial.println("ROOD");
+    digitalWrite(11, HIGH);
   }
   Serial.println(average);
   Serial.flush();
