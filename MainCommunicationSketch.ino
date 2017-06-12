@@ -5,9 +5,13 @@ String url = "0";
 int sessionID = 0;
 
 String reading;
+String average;
 
 int weight;
+int inputWeight;
 
+//to check if someone is on the scale
+bool someoneOn = false;
 
 void setup() {
   Serial.begin(9600);
@@ -25,6 +29,7 @@ void loop() {
   HttpClient client;
   //We are using this reading variable so we can add up the characters from the clients get
   reading = "";
+  average = "";
   weight = analogRead(A0);
   //if the session id is not set or is not correct we need to sign in once again. 
   if(sessionID == 0)
@@ -50,8 +55,9 @@ void loop() {
   if(sessionID != 0)
   {
     url = "http://studenthome.hku.nl/~gijs.bakker/Kernmodule%20IAD4/thingInsert.php?sessionID=" + String(sessionID) + "&weight=" + String(weight);
-    if(weight > 100)
+    if(weight > 100 && !someoneOn)
     {
+      someoneOn = true;
       client.get(url);
       while (client.available()) 
       {
@@ -60,13 +66,37 @@ void loop() {
       }
       Serial.println(String(weight));
       Serial.println(reading);
+      inputWeight = weight;
     }
     else
     {
       Serial.println("The reading was to low. nobody is on the god damn scale");
     }
+    if(weight < 100 && someoneOn)
+    {
+        someoneOn = false;  
+    }
   }
-  
+  Serial.println(inputWeight);
+
+  url = "http://studenthome.hku.nl/~gijs.bakker/Kernmodule%20IAD4/getLed.php?sessionID=" + String(sessionID) + "&arduinoWeight=" + String(inputWeight);
+
+  client.get(url);
+  while (client.available()) 
+  {
+    char c = client.read();
+    average += c; 
+  }
+
+  if(inputWeight < average.toInt() && someoneOn)
+  {
+    Serial.println("GROEN");
+  }
+  else if(someoneOn)
+  {
+    Serial.println("ROOD");
+  }
+  Serial.println(average);
   Serial.flush();
   delay(2000);
 }
