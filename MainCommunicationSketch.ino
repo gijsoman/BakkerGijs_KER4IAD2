@@ -95,11 +95,13 @@ void loop() {
   if(inputWeight < average.toInt() && someoneOn)
   {
     Serial.println("GROEN");
+    digitalWrite(11, LOW);
     digitalWrite(12, HIGH);
   }
   else if(someoneOn)
   {
     Serial.println("ROOD");
+    digitalWrite(12, LOW);
     digitalWrite(11, HIGH);
   }
   Serial.println(average);
